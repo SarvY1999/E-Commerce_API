@@ -31,6 +31,9 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', async function () {
+    //console.log(this.modifiedPaths); //tracks the paths (fields) that have been modified or changed since the document was loaded or saved
+    //console.log(this.isModified('name')); //Returns true if any of the given paths are modified, else false
+    if (!this.isModified('password')) return; // if password is not getting modified then return
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
