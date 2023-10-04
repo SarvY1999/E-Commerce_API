@@ -20,7 +20,7 @@ const getAllProduct = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
     const { id: productId } = req.params;
-    const product = await Product.findOne({ _id: productId });
+    const product = await Product.findOne({ _id: productId }).populate('reviews'); // you cannot query a virtual property, that is why created getSingleProductReview in Review Controller
     if (!product) {
         throw new CustomError.NotFoundError(`No product found with id ${productId}`)
     }
@@ -46,7 +46,7 @@ const deleteProduct = async (req, res) => {
         throw new CustomError.NotFoundError(`No product found with id ${productId}`)
     }
 
-    await product.remove(); // .remove() is removed since Mongoose 7, so if you are using Mongoose 7 and above, change .remove() to .deleteOne()
+    await product.deleteOne(); // .remove() is removed since Mongoose 7, so if you are using Mongoose 7 and above, change .remove() to .deleteOne()
     res.status(StatusCodes.OK).json({ msg: "Product Deleted Successfully" });
 
 };

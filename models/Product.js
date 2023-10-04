@@ -55,12 +55,30 @@ const ProductSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    numOfReviews : {
+        type : Number,
+        default: 0
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
 
-}, { timestamps: true },);
+}, { timestamps: true});
 
+ProductSchema.set('toJSON', {virtuals: true });
+ProductSchema.set('toObject', {virtuals: true });
+
+ProductSchema.virtual('reviews', {
+    ref: 'Review',
+    localField: '_id',
+    foreignField: 'product',
+    justOne: false,
+});
+
+// when a product gets deleted we are also deleting all the reviews associated with it, with this pre-hook
+ProductSchema.pre('deleteOne', {document: true}, async function(){
+    await this.model('Review').deleteMany({product : this._id});
+})
 module.exports = mongoose.model('Product', ProductSchema);
