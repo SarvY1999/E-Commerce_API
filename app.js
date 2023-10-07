@@ -4,6 +4,11 @@ require('express-async-errors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
+const reateLimiter = require('express-rate-limit');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
 const connectDB = require('./db/connect');
 const notFound = require('./middleware/not-found');
 const errorHandler = require('./middleware/error-handler');
@@ -14,6 +19,17 @@ const reviewRouter = require('./routes/reviewRoutes');
 const orderRouter = require('./routes/orderRoutes');
 
 const app = express();
+
+app.set('trust proxy', 1);
+app.use(reateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 60
+}));
+app.use(helmet());
+app.use(cors());
+app.use(xss());
+app.use(mongoSanitize());
+
 
 app.use(morgan('tiny'));
 app.use(express.json());
